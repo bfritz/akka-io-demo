@@ -13,6 +13,7 @@ object TimeServer extends Server {
 }
 
 class TimeServerHandler extends Listener {
+  // Think I want a TcpPipelineHandler, but I haven't made the types line up yet..
   val ctx = new PipelineContext {}
   val PipelinePorts(cmd, evt, mgmt) = PipelineFactory.buildFunctionTriple(ctx, new LongCodec)
   override protected def onConnected(remote: InetSocketAddress, local: InetSocketAddress): Unit = {
