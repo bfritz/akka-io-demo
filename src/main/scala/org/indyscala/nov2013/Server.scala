@@ -1,62 +1,36 @@
 package org.indyscala.nov2013
 
-import akka.actor.{ActorRef, Actor}
+import akka.actor.{ActorSystem, Props, ActorRef, Actor}
 import akka.io.{IO, Tcp}, Tcp._
-import java.net.InetSocketAddress
-import scala.Some
-import akka.io.Tcp.Connected
-import akka.util.ByteString
+import java.net.{InetAddress, InetSocketAddress}
 
-trait Server extends Actor {
-  import Tcp._
-  import context.system
+abstract class Server(val address: InetSocketAddress = DefaultInetSocketAddress) extends App {
+  implicit lazy val system = ActorSystem()
+  protected def connectionListener: ActorRef
 
-  override def preStart() {
-    super.preStart()
-    IO(Tcp) ! Bind(self, new InetSocketAddress("localhost", 0))
-  }
-
-  def receive = {
-    case b @ Bound(localAddress) =>
-      println(s"Bound to port ${localAddress.getPort}")
-
-    case CommandFailed(Bind(_, localAddress, _, _)) =>
-      System.err.println("Failed to bind to "+localAddress)
-      context.stop(self)
-
-    case connected @ Connected(remote, local) =>
-      val connection = sender
-      val handler = newHandler
-      handler.forward(connected)
-      connection ! Register(handler)
-  }
-
-  protected def newHandler: ActorRef
-}
-
-trait InboundHandler extends Actor {
-  protected var remote: Option[InetSocketAddress] = None
-  protected var local: Option[InetSocketAddress] = None
-
-  def receive = {
-    case Connected(remote, local) => onConnected(remote, local)
-    case closed: ConnectionClosed => onConnectionClosed(closed)
-    case Received(data) => onReceived(data)
-  }
-
-  protected def onConnected(remote: InetSocketAddress, local: InetSocketAddress): Unit = {
-    println(s"Connected to ${remote}")
-    this.remote = Some(remote)
-    this.local = Some(local)
-  }
-
-  protected def onConnectionClosed(closed: ConnectionClosed): Unit = {
-    remote match {
-      case Some(address) => println(s"Disconnected from ${address}")
-      case None => println("Disconnected from ... huh?  We were connected?")
+  class ServerActor extends Actor {
+    override def preStart() {
+      super.preStart()
+      println(s"Starting server on ${address}")
+      IO(Tcp) ! Bind(self, address)
     }
-    context.stop(self)
+
+    def receive = {
+      case b @ Bound(localAddress) =>
+        println(s"Bound to port ${localAddress}")
+
+      case CommandFailed(Bind(_, localAddress, _, _)) =>
+        System.err.println(s"Failed to bind to ${localAddress}")
+        context.stop(self)
+
+      case connected @ Connected(remote, local) =>
+        val connection = sender
+        val listener = connectionListener
+        listener.forward(connected)
+        connection ! Register(listener)
+    }
   }
 
-  protected def onReceived(data: ByteString): Unit
+  system.actorOf(Props(new ServerActor))
 }
+
