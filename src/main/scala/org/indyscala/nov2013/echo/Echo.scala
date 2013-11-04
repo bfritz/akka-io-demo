@@ -12,8 +12,7 @@ object Echo extends App {
 }
 
 class EchoServer extends Server {
-  protected def handlerFor(remote: InetSocketAddress, local: InetSocketAddress): ActorRef =
-    context.system.actorOf(Props[EchoHandler])
+  protected def newHandler: ActorRef = context.system.actorOf(Props[EchoHandler])
 }
 
 class EchoHandler extends InboundHandler {

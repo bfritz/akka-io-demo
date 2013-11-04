@@ -11,8 +11,7 @@ object Discard extends App {
 }
 
 class DiscardServer extends Server {
-  protected def handlerFor(remote: InetSocketAddress, local: InetSocketAddress): ActorRef =
-    context.system.actorOf(Props[DiscardHandler])
+  protected def newHandler: ActorRef = context.system.actorOf(Props[DiscardHandler])
 }
 
 class DiscardHandler extends InboundHandler {

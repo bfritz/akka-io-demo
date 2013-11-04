@@ -26,12 +26,12 @@ trait Server extends Actor {
 
     case connected @ Connected(remote, local) =>
       val connection = sender
-      val handler = handlerFor(remote, local)
-      connection ! Register(handler)
+      val handler = newHandler
       handler.forward(connected)
+      connection ! Register(handler)
   }
 
-  protected def handlerFor(remote: InetSocketAddress, local: InetSocketAddress): ActorRef
+  protected def newHandler: ActorRef
 }
 
 trait InboundHandler extends Actor {
