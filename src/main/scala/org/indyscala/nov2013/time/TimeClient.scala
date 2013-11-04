@@ -12,7 +12,7 @@ object TimeClient extends Client {
 
 class TimeClientHandler extends Listener {
   protected override def onReceived(data: ByteString): Unit = {
-    val time = (data.iterator.getLong - 2208988800L) * 1000L
+    val time = ((data.iterator.getInt & 0xFFFFFFFFL) - 2208988800L) * 1000L
     println(new Date(time))
     context.stop(self)
   }

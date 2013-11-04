@@ -5,5 +5,5 @@ import java.nio.ByteOrder
 
 package object nov2013 {
   val DefaultInetSocketAddress = new InetSocketAddress("localhost", 47990)
-  implicit val DefaultByteOrder: ByteOrder = ByteOrder.LITTLE_ENDIAN
+  implicit val DefaultByteOrder: ByteOrder = ByteOrder.BIG_ENDIAN
 }

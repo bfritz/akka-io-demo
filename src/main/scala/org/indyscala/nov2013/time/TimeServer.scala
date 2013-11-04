@@ -16,7 +16,7 @@ class TimeServerHandler extends Listener {
   override protected def onConnected(remote: InetSocketAddress, local: InetSocketAddress): Unit = {
     super.onConnected(remote, local)
     val bs = ByteString.newBuilder
-      .putLong(System.currentTimeMillis / 1000L + 2208988800L)
+      .putInt((System.currentTimeMillis / 1000L + 2208988800L).toInt)
       .result()
     sender ! Write(bs)
   }
