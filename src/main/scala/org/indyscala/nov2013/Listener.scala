@@ -13,6 +13,7 @@ trait Listener extends Actor {
     case Connected(remote, local) => onConnected(remote, local)
     case closed: ConnectionClosed => onConnectionClosed(closed)
     case Received(data) => onReceived(data)
+    case Ack => onAck
   }
 
   protected def onConnected(remote: InetSocketAddress, local: InetSocketAddress): Unit = {
@@ -30,4 +31,8 @@ trait Listener extends Actor {
   }
 
   protected def onReceived(data: ByteString): Unit = {}
+
+  protected def onAck(): Unit = {
+    println(s"Ack on write to ${remote}")
+  }
 }

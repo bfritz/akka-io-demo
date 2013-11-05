@@ -18,6 +18,11 @@ class TimeServerHandler extends Listener {
     val bs = ByteString.newBuilder
       .putInt((System.currentTimeMillis / 1000L + 2208988800L).toInt)
       .result()
-    sender ! Write(bs)
+    sender ! Write(bs, Ack)
+  }
+
+  override protected def onAck() {
+    super.onAck
+    sender ! Close
   }
 }
