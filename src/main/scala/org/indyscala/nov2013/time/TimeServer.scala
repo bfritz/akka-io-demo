@@ -19,5 +19,6 @@ class TimeServerHandler extends Listener {
       .putInt((System.currentTimeMillis / 1000L + 2208988800L).toInt)
       .result()
     sender ! Write(bs)
+    sender ! Close
   }
 }
